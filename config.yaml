@@ -1,13 +1,13 @@
 # Change the seed until a million dollar collection is generated.
 seed: 222
 
-# Number of unique images you are going to create.
-number: 1000
+# 创建图片的总数量
+number: 10
 
-# Every two items differ in at least this number of traits.
-distance: 3
+# 每个物品之间至少有 x处 不同
+distance: 10
 
-# Grid size of generated images.
+# 图片宽高.
 image_width: 24
 image_height: 24
 

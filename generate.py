@@ -20,35 +20,38 @@ class Generator:
         # Raise exception if no unique image could be create after 200 tries
         # Add some more traits or lower the number of generated images
         if rec > 200:
-            raise Exception('Could not create another unique image')
-        desc = {}
+            print('Could not create another unique image')
+            return 'finish'
+            # raise Exception('Could not create another unique image')
+        else:
+            desc = {}
 
-        # initialize image and iterate through layers
-        ids = np.zeros((len(self.config_normal),))
-        image = np.zeros((self.config['image_height'], self.config['image_width'], 3))
-        for idx, (layer_id, layer) in enumerate(self.config_normal.items()):
-            image, ids[idx], name, value, trait = self.add_layer(image, layer_id, layer, traits)
-            desc[layer_id] = {'id': trait, 'name': name, 'value': value}
+            # initialize image and iterate through layers
+            ids = np.zeros((len(self.config_normal),))
+            image = np.zeros((self.config['image_height'], self.config['image_width'], 3))
+            for idx, (layer_id, layer) in enumerate(self.config_normal.items()):
+                image, ids[idx], name, value, trait = self.add_layer(image, layer_id, layer, traits)
+                desc[layer_id] = {'id': trait, 'name': name, 'value': value}
 
-        # make sure that each two doggos differ in at least some traits
-        diff = self.trait_matrix - ids
-        diff = np.abs(diff)
-        diff = np.clip(diff, 0, 1)
-        diff = np.sum(diff, axis=-1)
-        if self.trait_matrix.shape[0] > 0 and np.any(diff < self.config['distance']):
-            return self.generate_normal(img_id, traits, rec + 1)
+            # make sure that each two doggos differ in at least some traits
+            diff = self.trait_matrix - ids
+            diff = np.abs(diff)
+            diff = np.clip(diff, 0, 1)
+            diff = np.sum(diff, axis=-1)
+            if self.trait_matrix.shape[0] > 0 and np.any(diff < self.config['distance']):
+                return self.generate_normal(img_id, traits, rec + 1)
 
-        # add this id to matrix of all previous ids
-        ids = np.expand_dims(ids, axis=0)
-        self.trait_matrix = np.concatenate((self.trait_matrix, ids))
+            # add this id to matrix of all previous ids
+            ids = np.expand_dims(ids, axis=0)
+            self.trait_matrix = np.concatenate((self.trait_matrix, ids))
 
-        # Save description
-        name = f'{self.config["prefix"]}_{img_id:04d}'
-        self.save_desc(name, desc)
-        # Save image in original and upscaled resolution
-        self.save_img(name, image)
-        image = self.scale_img(image, self.config['image_scale'])
-        self.save_img(f'{name}_large', image)
+            # Save description
+            name = f'{self.config["prefix"]}_{img_id:04d}'
+            self.save_desc(name, desc)
+            # Save image in original and upscaled resolution
+            self.save_img(name, image)
+            image = self.scale_img(image, self.config['image_scale'])
+            self.save_img(f'{name}_large', image)
 
     def generate_legend(self, legend):
         # Load image of legendary doggo
@@ -178,15 +181,18 @@ def main():
         mistakes = {}
         # Comment this in to recreate the original cyberdoggos
         # mistakes = add_mistakes(i)
-        gen.generate_normal(i, mistakes)
-
+        res = gen.generate_normal(i, mistakes)
+        if res == 'finish':
+            break
     # Generate legendary doggos
-    for item in config_legend:
-        gen.generate_legend(item)
+    # for item in config_legend:
+    #     gen.generate_legend(item)
 
     # Create single picture of all doggos
-    gen.generate_collage()
+    # gen.generate_collage()
+    print('end')
 
 
 if __name__ == "__main__":
+    print('start')
     main()
